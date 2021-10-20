@@ -38,18 +38,17 @@ class HomeFragment : Fragment() {
         val textView: TextView = binding.results
         val startButton: Button = binding.buttonStart
 
-        homeViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
-
 
         startButton.setOnClickListener(View.OnClickListener {
-            val result = measureTimeMillis {
+            val loadResult = measureTimeMillis {
                 System.loadLibrary("tinyaes")
+            }
+            val testResult = measureTimeMillis {
                 encrypt()
             }
 
-            textView.append("\n result: " + result + "ms")
+            textView.append("\n result: " + loadResult + "ms")
+            textView.append("\n result: " + testResult + "ms")
         })
 
 
