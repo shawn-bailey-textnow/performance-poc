@@ -8,10 +8,13 @@ class NativeLib {
      */
     external fun stringFromJNI(): String
 
-    companion object {
-        // Used to load the 'tinyaes' library on application startup.
-        init {
-            System.loadLibrary("tinyaes")
-        }
+    //These are just hooked into test-aes.c
+    external fun encrypt(): Int
+
+    external fun encryptSample(sample: String): Int
+
+    fun initialize() {
+        System.loadLibrary("tinyaes")
     }
+
 }

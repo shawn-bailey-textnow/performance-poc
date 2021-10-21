@@ -317,20 +317,13 @@ static int test_decrypt_ecb(void)
 
 //extern "C" { if you need to use C++ instead of C, replace aes.h with aes.hpp https://github.com/kokke/tiny-AES-c/blob/master/aes.hpp
 // also rename test-aes.c to test-aes.cpp, and update it in CMakeLists.txt
-JNIEXPORT jint JNICALL
-Java_com_anonym_tinyaes_MainActivity_testAES(JNIEnv *env, jobject obj) {
-    return tests();
-}
-
 
 JNIEXPORT jint JNICALL
-Java_com_example_performancepoc_ui_home_HomeFragment_encrypt(JNIEnv *env, jobject thiz) {
+Java_com_example_tinyaes_NativeLib_encrypt(JNIEnv *env, jobject thiz) {
     return tests();
 }
 
 JNIEXPORT jint JNICALL
-Java_com_example_performancepoc_ui_home_HomeFragment_encryptSample(JNIEnv *env, jobject thiz,
-                                                                   jstring sample) {
+Java_com_example_tinyaes_NativeLib_encryptSample(JNIEnv *env, jobject thiz, jstring sample) {
     const char *nativeString = (*env)->GetStringUTFChars(sample, 0, NULL);
-
 }

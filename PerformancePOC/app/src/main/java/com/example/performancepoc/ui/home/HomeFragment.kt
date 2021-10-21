@@ -11,6 +11,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.performancepoc.R
 import com.example.performancepoc.databinding.FragmentHomeBinding
+import com.example.tinyaes.NativeLib
 import kotlin.system.measureTimeMillis
 
 class HomeFragment : Fragment() {
@@ -18,13 +19,11 @@ class HomeFragment : Fragment() {
     private lateinit var homeViewModel: HomeViewModel
     private var _binding: FragmentHomeBinding? = null
 
-    private external fun encrypt(): Int
-
-    private external fun encryptSample(sample: String): Int
-
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    private val nativeLib = NativeLib()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,19 +37,22 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
         val textView: TextView = binding.results
-        val startButton: Button = binding.buttonStart
+        val tinyaesButton: Button = binding.buttonTinyaes
+        val kryptoButton: Button = binding.buttonKrypto
+        val tankerButton: Button = binding.buttonTanker
+        val tinkButton: Button = binding.buttonTink
 
 
-        startButton.setOnClickListener(View.OnClickListener {
+        tinyaesButton.setOnClickListener(View.OnClickListener {
             val loadResult = measureTimeMillis {
-                System.loadLibrary("tinyaes")
+                nativeLib.initialize()
             }
             val testResult = measureTimeMillis {
-                encrypt()
+                nativeLib.encrypt()
             }
 
-            textView.append("\n result: " + loadResult + "ms")
-            textView.append("\n result: " + testResult + "ms")
+            textView.append("\n Load Time: " + loadResult + "ms")
+            textView.append("\n Test Time: " + testResult + "ms")
         })
 
 
