@@ -20,6 +20,8 @@ class HomeFragment : Fragment() {
 
     private external fun encrypt(): Int
 
+    private external fun encryptSample(sample: String): Int
+
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!

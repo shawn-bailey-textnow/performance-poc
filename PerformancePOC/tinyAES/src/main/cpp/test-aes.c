@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <android/log.h>
 
+
 // Enable ECB, CTR and CBC mode. Note this can be done before including aes.h or at compile-time.
 // E.g. with GCC by using the -D flag: gcc -c aes.c -DCBC=0 -DCTR=1 -DECB=1
 #define CBC 1
@@ -325,4 +326,11 @@ Java_com_anonym_tinyaes_MainActivity_testAES(JNIEnv *env, jobject obj) {
 JNIEXPORT jint JNICALL
 Java_com_example_performancepoc_ui_home_HomeFragment_encrypt(JNIEnv *env, jobject thiz) {
     return tests();
+}
+
+JNIEXPORT jint JNICALL
+Java_com_example_performancepoc_ui_home_HomeFragment_encryptSample(JNIEnv *env, jobject thiz,
+                                                                   jstring sample) {
+    const char *nativeString = (*env)->GetStringUTFChars(sample, 0, NULL);
+
 }
