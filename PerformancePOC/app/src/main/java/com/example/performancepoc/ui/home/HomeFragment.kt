@@ -43,7 +43,7 @@ class HomeFragment : Fragment() {
         val tinkButton: Button = binding.buttonTink
 
 
-        tinyaesButton.setOnClickListener(View.OnClickListener {
+        tinyaesButton.setOnClickListener {
             val loadResult = measureTimeMillis {
                 nativeLib.initialize()
             }
@@ -51,9 +51,9 @@ class HomeFragment : Fragment() {
                 nativeLib.encrypt()
             }
 
-            textView.append("\n Load Time: " + loadResult + "ms")
-            textView.append("\n Test Time: " + testResult + "ms")
-        })
+            textView.append("\n TinyAES Load Time: " + loadResult + "ms")
+            textView.append("\n TinyAES Test Time: " + testResult + "ms")
+        }
 
 
         return root
