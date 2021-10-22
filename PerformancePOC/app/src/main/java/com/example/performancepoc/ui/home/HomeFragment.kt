@@ -36,14 +36,20 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        //These are the buttons we can use to test different encryption libraries
         val textView: TextView = binding.results
         val tinyaesButton: Button = binding.buttonTinyaes
         val kryptoButton: Button = binding.buttonKrypto
         val tankerButton: Button = binding.buttonTanker
         val tinkButton: Button = binding.buttonTink
 
+        homeViewModel.text.observe(viewLifecycleOwner, {
+            textView.append(it)
+        })
 
         tinyaesButton.setOnClickListener {
+            //homeViewModel.testTinyAes() // test running in a coroutine
+            
             val loadResult = measureTimeMillis {
                 nativeLib.initialize()
             }

@@ -14,16 +14,21 @@ class HomeViewModel : ViewModel() {
     private val nativeLib = NativeLib()
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is home Fragment"
+        value = ""
     }
 
     val text: LiveData<String> = _text
 
     //Tests the implementation on a background thread
     fun testTinyAes() = viewModelScope.launch(Dispatchers.Default) {
-        val time = measureTimeMillis {
-
+        val loadResult = measureTimeMillis {
+            nativeLib.initialize()
         }
+        val testResult = measureTimeMillis {
+            nativeLib.encrypt()
+        }
+
+        _text.postValue("\n TinyAES Load: " + loadResult + "ms - " + "Test: " + testResult + "ms")
     }
 
 }
