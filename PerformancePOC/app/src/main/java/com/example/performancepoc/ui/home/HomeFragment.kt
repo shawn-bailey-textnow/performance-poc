@@ -49,7 +49,7 @@ class HomeFragment : Fragment() {
 
         tinyaesButton.setOnClickListener {
             //homeViewModel.testTinyAes() // test running in a coroutine
-            
+
             val loadResult = measureTimeMillis {
                 nativeLib.initialize()
             }
@@ -60,7 +60,6 @@ class HomeFragment : Fragment() {
             textView.append("\n TinyAES Load Time: " + loadResult + "ms")
             textView.append("\n TinyAES Test Time: " + testResult + "ms")
         }
-
 
         return root
     }
