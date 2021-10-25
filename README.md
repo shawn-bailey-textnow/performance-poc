@@ -2,10 +2,13 @@
 
 WIP
 
+https://confluence.enflick.com/pages/viewpage.action?spaceKey=AND&title=Preference+Redux+H2+2021
+
 # Setup NDK to build this project:
 
 You need CMAKE under SDK Manager -> SDK Tools -> Show Package Details -> CMAKE 3.18.1
-I dont think a specific NDK is required at the moment, but if there is I will update this readme
+
+I dont think a specific NDK is required at the moment, but if there is I will update this readme. This worked with the NDK version textnow uses.
 
 
 # Adding benchmarking functions:
