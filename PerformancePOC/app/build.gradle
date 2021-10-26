@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.performancepoc"
-        minSdk 21
+        minSdk 23
         targetSdk 30
         versionCode 1
         versionName "1.0"
@@ -69,4 +69,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     implementation project(':tinyAES')
+
+
+    implementation("com.soywiz.korlibs.krypto:krypto-android:2.2.0")
 }
