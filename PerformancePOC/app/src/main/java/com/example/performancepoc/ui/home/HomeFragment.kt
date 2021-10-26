@@ -74,7 +74,7 @@ class HomeFragment : Fragment() {
 
         //From comments in AES -> Based on CryptoJS
         kryptoButton.setOnClickListener {
-            val key: ByteArray
+            val publicKey: PublicKey
             val alias = "nameHere"
 
             val keystoreResult = measureTimeMillis {
@@ -94,14 +94,13 @@ class HomeFragment : Fragment() {
                 kpg.initialize(parameterSpec)
 
                 val kp = kpg.generateKeyPair()
-            }
 
-            //load keys
-            val keyStore = KeyStore.getInstance("AndroidKeyStore")
-            keyStore.load(null)
-            val entry = keyStore.getEntry(alias, null)
-            val privateKey: PrivateKey = (entry as KeyStore.PrivateKeyEntry).privateKey
-            val publicKey: PublicKey = keyStore.getCertificate(alias).publicKey
+                //load keys
+                val keyStore = KeyStore.getInstance("AndroidKeyStore")
+                keyStore.load(null)
+                val entry = keyStore.getEntry(alias, null)
+                publicKey = keyStore.getCertificate(alias).publicKey
+            }
 
             val encryptArray: ByteArray
             val encryptResult = measureTimeMillis {
@@ -111,12 +110,12 @@ class HomeFragment : Fragment() {
             val decryptArray: ByteArray
             val decryptResult = measureTimeMillis {
                 decryptArray = AES.decryptAes128Cbc(encryptArray, publicKey.encoded, Padding.PKCS7Padding)
-
             }
 
             textView.append("\n Krypto Keystore Load Time: " + keystoreResult + "ms")
             textView.append("\n Krypto Encrypt Time: " + encryptResult + "ms")
             textView.append("\n Krypto Decrypt Time: " + decryptResult + "ms")
+            textView.append("\n Krypto Encrypt Result: " + encryptArray.decodeToString())
             textView.append("\n Krypto Decrypt Result: " + decryptArray.decodeToString())
         }
 
