@@ -16,6 +16,8 @@ import com.example.tinyaes.NativeLib
 import javax.crypto.KeyGenerator
 import kotlin.system.measureTimeMillis
 import android.security.keystore.KeyGenParameterSpec
+import androidx.security.crypto.MasterKey
+import androidx.security.crypto.MasterKeys
 import com.soywiz.krypto.AES
 import com.soywiz.krypto.Padding
 import java.security.KeyPairGenerator
@@ -35,6 +37,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val nativeLib = NativeLib()
+    private val keyProvider = KeyProvider()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,45 +77,23 @@ class HomeFragment : Fragment() {
 
         //From comments in AES -> Based on CryptoJS
         kryptoButton.setOnClickListener {
-            val publicKey: PublicKey
-            val alias = "nameHere"
+            val publicKey: ByteArray
 
             val keystoreResult = measureTimeMillis {
-
-                val kpg: KeyPairGenerator = KeyPairGenerator.getInstance(
-                    KeyProperties.KEY_ALGORITHM_EC,
-                    "AndroidKeyStore"
-                )
-                val parameterSpec: KeyGenParameterSpec = KeyGenParameterSpec.Builder(
-                    alias,
-                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-                ).run {
-                    setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
-                    build()
-                }
-
-                kpg.initialize(parameterSpec)
-
-                val kp = kpg.generateKeyPair()
-
-                //load keys
-                val keyStore = KeyStore.getInstance("AndroidKeyStore")
-                keyStore.load(null)
-                val entry = keyStore.getEntry(alias, null)
-                publicKey = keyStore.getCertificate(alias).publicKey
+                publicKey = keyProvider.getKey()
             }
 
             val encryptArray: ByteArray
             val encryptResult = measureTimeMillis {
-                encryptArray = AES.encryptAes128Cbc("test".toByteArray(), publicKey.encoded, Padding.PKCS7Padding)
+                encryptArray = AES.encryptAes128Cbc("test".toByteArray(), publicKey, Padding.PKCS7Padding)
             }
 
             val decryptArray: ByteArray
             val decryptResult = measureTimeMillis {
-                decryptArray = AES.decryptAes128Cbc(encryptArray, publicKey.encoded, Padding.PKCS7Padding)
+                decryptArray = AES.decryptAes128Cbc(encryptArray, publicKey, Padding.PKCS7Padding)
             }
 
-            textView.append("\n Krypto Keystore Load Time: " + keystoreResult + "ms")
+            textView.append("\n Android Keystore Load Time: " + keystoreResult + "ms")
             textView.append("\n Krypto Encrypt Time: " + encryptResult + "ms")
             textView.append("\n Krypto Decrypt Time: " + decryptResult + "ms")
             textView.append("\n Krypto Encrypt Result: " + encryptArray.decodeToString())

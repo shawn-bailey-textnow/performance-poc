@@ -70,6 +70,5 @@ dependencies {
 
     implementation project(':tinyAES')
 
-
     implementation("com.soywiz.korlibs.krypto:krypto-android:2.2.0")
 }

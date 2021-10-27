@@ -31,4 +31,6 @@ class HomeViewModel : ViewModel() {
         _text.postValue("\n TinyAES Load: " + loadResult + "ms - " + "Test: " + testResult + "ms")
     }
 
+
+
 }
