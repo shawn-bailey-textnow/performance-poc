@@ -16,8 +16,6 @@ import com.example.tinyaes.NativeLib
 import javax.crypto.KeyGenerator
 import kotlin.system.measureTimeMillis
 import android.security.keystore.KeyGenParameterSpec
-import androidx.security.crypto.MasterKey
-import androidx.security.crypto.MasterKeys
 import com.soywiz.krypto.AES
 import com.soywiz.krypto.Padding
 import java.security.KeyPairGenerator
