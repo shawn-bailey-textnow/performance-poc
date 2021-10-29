@@ -75,7 +75,7 @@ class HomeFragment : Fragment() {
 
         //From comments in AES -> Based on CryptoJS
         kryptoButton.setOnClickListener {
-            val publicKey: ByteArray
+            val publicKey: PublicKey
 
             val keystoreResult = measureTimeMillis {
                 publicKey = keyProvider.getKey()
@@ -83,12 +83,12 @@ class HomeFragment : Fragment() {
 
             val encryptArray: ByteArray
             val encryptResult = measureTimeMillis {
-                encryptArray = AES.encryptAes128Cbc("test".toByteArray(), publicKey, Padding.PKCS7Padding)
+                encryptArray = AES.encryptAes128Cbc("test".toByteArray(), publicKey.encoded, Padding.PKCS7Padding)
             }
 
             val decryptArray: ByteArray
             val decryptResult = measureTimeMillis {
-                decryptArray = AES.decryptAes128Cbc(encryptArray, publicKey, Padding.PKCS7Padding)
+                decryptArray = AES.decryptAes128Cbc(encryptArray, publicKey.encoded, Padding.PKCS7Padding)
             }
 
             textView.append("\n Android Keystore Load Time: " + keystoreResult + "ms")
@@ -97,7 +97,6 @@ class HomeFragment : Fragment() {
             textView.append("\n Krypto Encrypt Result: " + encryptArray.decodeToString())
             textView.append("\n Krypto Decrypt Result: " + decryptArray.decodeToString())
         }
-
 
         return root
     }

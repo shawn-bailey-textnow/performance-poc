@@ -4,20 +4,21 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import java.security.KeyPairGenerator
 import java.security.KeyStore
+import java.security.PublicKey
 
 class KeyProvider {
 
     val alias = "shawn is the most fabulous human to ever exist"
 
-    fun getKey(): ByteArray {
+    fun getKey(): PublicKey {
 
         val keystore = loadKeystore()
 
         if (hasAlias(keystore)) {
-            return keystore.getCertificate(alias).publicKey.encoded
+            return keystore.getCertificate(alias).publicKey
         } else {
             generateKey()
-            return keystore.getCertificate(alias).publicKey.encoded
+            return keystore.getCertificate(alias).publicKey
         }
     }
 
