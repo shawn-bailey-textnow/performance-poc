@@ -46,10 +46,15 @@ class KeyProvider {
         return keyStore
     }
 
-    fun hasAlias(keystore: KeyStore): Boolean {
-        val keyStore = KeyStore.getInstance("AndroidKeyStore")
+    fun hasAlias(keyStore: KeyStore): Boolean {
         keyStore.load(null)
         keyStore.aliases()
         return keyStore.aliases().toList().contains(alias)
+    }
+
+    fun deleteKey() {
+        val keyStore = loadKeystore()
+        keyStore.load(null)
+        keyStore.deleteEntry(alias)
     }
 }

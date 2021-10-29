@@ -54,10 +54,16 @@ class HomeFragment : Fragment() {
         val kryptoButton: Button = binding.buttonKrypto
         val tankerButton: Button = binding.buttonTanker
         val tinkButton: Button = binding.buttonTink
+        val deleteButton: Button = binding.buttonDelete
 
         homeViewModel.text.observe(viewLifecycleOwner, {
             textView.append(it)
         })
+
+        deleteButton.setOnClickListener {
+            keyProvider.deleteKey()
+            textView.append("\n Key Deleted")
+        }
 
         tinyaesButton.setOnClickListener {
             //homeViewModel.testTinyAes() // test running in a coroutine
@@ -83,7 +89,7 @@ class HomeFragment : Fragment() {
 
             val encryptArray: ByteArray
             val encryptResult = measureTimeMillis {
-                encryptArray = AES.encryptAes128Cbc("test".toByteArray(), publicKey.encoded, Padding.PKCS7Padding)
+                encryptArray = AES.encryptAes128Cbc("testString".toByteArray(), publicKey.encoded, Padding.PKCS7Padding)
             }
 
             val decryptArray: ByteArray
