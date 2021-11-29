@@ -18,11 +18,16 @@ import kotlin.system.measureTimeMillis
 import android.security.keystore.KeyGenParameterSpec
 import com.soywiz.krypto.AES
 import com.soywiz.krypto.Padding
+import io.tanker.api.Tanker
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.PublicKey
 import javax.crypto.SecretKey
+import kotlin.math.tan
+import com.example.tanker.TankerEncrypt
+import io.tanker.api.TankerFuture
+import java.util.concurrent.Future
 
 
 class HomeFragment : Fragment() {
@@ -77,6 +82,47 @@ class HomeFragment : Fragment() {
 
             textView.append("\n TinyAES Load Time: " + loadResult + "ms")
             textView.append("\n TinyAES Test Time: " + testResult + "ms")
+        }
+
+        tankerButton.setOnClickListener {
+            var tanker: Tanker? = null
+            val init = measureTimeMillis {
+                context?.let {
+                    tanker = TankerEncrypt.initialize(it)
+                }
+            }
+            val encryptArray: ByteArray?
+            val spawnEncryptProcess: Long
+            val encryptResult = measureTimeMillis {
+                val futureEncryptArray: TankerFuture<ByteArray>?
+                spawnEncryptProcess = measureTimeMillis {
+                    futureEncryptArray = tanker?.encrypt("testString".toByteArray())
+                }
+                encryptArray = futureEncryptArray?.get()
+            }
+
+
+            val decryptArray: ByteArray?
+            val spawnDecryptProcess: Long
+            val decryptResult = measureTimeMillis {
+                var futureEncryptArray: TankerFuture<ByteArray>? = null
+                spawnDecryptProcess = measureTimeMillis {
+                    encryptArray?.let {
+                        futureEncryptArray = tanker?.decrypt(it)
+                    }
+                }
+                decryptArray = futureEncryptArray?.get()
+            }
+
+
+
+            textView.append("\n Init Load Time: " + init + "ms")
+            textView.append("\n Tanker Encrypt Time: " + encryptResult + "ms")
+            textView.append("\n Tanker Encrypt launch Time: " + spawnEncryptProcess + "ms")
+            textView.append("\n Tanker Decrypt Time: " + decryptResult + "ms")
+            textView.append("\n Tanker Decrypt launch Time: " + spawnDecryptProcess + "ms")
+            textView.append("\n Tanker Encrypt Result: " + encryptArray?.decodeToString())
+            textView.append("\n Tanker Decrypt Result: " + decryptArray?.decodeToString())
         }
 
         //From comments in AES -> Based on CryptoJS
