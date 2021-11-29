@@ -3,9 +3,13 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url 'https://storage.googleapis.com/maven.tanker.io'
+        }
         jcenter() // Warning: this repository is going to shut down soon
     }
 }
 rootProject.name = "PerformancePOC"
 include ':app'
 include ':tinyAES'
+include ':app:tanker'
