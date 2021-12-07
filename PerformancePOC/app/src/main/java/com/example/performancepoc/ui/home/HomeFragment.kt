@@ -1,28 +1,28 @@
 package com.example.performancepoc.ui.home
 
+import android.content.Context
 import android.os.Bundle
-import android.security.keystore.KeyProperties
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.performancepoc.R
 import com.example.performancepoc.databinding.FragmentHomeBinding
 import com.example.tinyaes.NativeLib
-import javax.crypto.KeyGenerator
-import kotlin.system.measureTimeMillis
-import android.security.keystore.KeyGenParameterSpec
+import com.google.crypto.tink.Aead
+import com.google.crypto.tink.Config
+import com.google.crypto.tink.KeyTemplates
+import com.google.crypto.tink.aead.AeadConfig
+import com.google.crypto.tink.aead.AeadKeyTemplates
+import com.google.crypto.tink.config.TinkConfig
+import com.google.crypto.tink.integration.android.AndroidKeysetManager
 import com.soywiz.krypto.AES
 import com.soywiz.krypto.Padding
-import java.security.KeyPairGenerator
-import java.security.KeyStore
-import java.security.PrivateKey
 import java.security.PublicKey
-import javax.crypto.SecretKey
+import kotlin.system.measureTimeMillis
+
 
 
 class HomeFragment : Fragment() {
@@ -52,13 +52,43 @@ class HomeFragment : Fragment() {
         val textView: TextView = binding.results
         val tinyaesButton: Button = binding.buttonTinyaes
         val kryptoButton: Button = binding.buttonKrypto
-        val tankerButton: Button = binding.buttonTanker
         val tinkButton: Button = binding.buttonTink
         val deleteButton: Button = binding.buttonDelete
 
         homeViewModel.text.observe(viewLifecycleOwner, {
             textView.append(it)
         })
+
+        tinkButton.setOnClickListener {
+
+            val aead: Aead
+
+            val loadResult = measureTimeMillis {
+                AeadConfig.register()
+
+                aead = AndroidKeysetManager.Builder()
+                    .withSharedPref(
+                        context, "keysetname", "preferencename"
+                    )
+                    .withKeyTemplate(AeadKeyTemplates.AES128_GCM)
+                    .withMasterKeyUri("android-keystore://hello_world_master_key")
+                    .build()
+                    .keysetHandle.getPrimitive(Aead::class.java)
+            }
+
+            val ciphertext: ByteArray
+            val encryptResult = measureTimeMillis {
+                ciphertext = aead.encrypt("pancakes".toByteArray(), null)
+            }
+
+            val decryptResult = measureTimeMillis {
+                val decrypted = aead.decrypt(ciphertext, null)
+            }
+
+            textView.append("\n Tink Initialize: " + loadResult + "ms")
+            textView.append("\n Tink Encrypt: " + encryptResult + "ms")
+            textView.append("\n Tink decrypt: " + decryptResult + "ms")
+        }
 
         deleteButton.setOnClickListener {
             keyProvider.deleteKey()
@@ -67,7 +97,7 @@ class HomeFragment : Fragment() {
 
         tinyaesButton.setOnClickListener {
             //homeViewModel.testTinyAes() // test running in a coroutine
-            
+
             val loadResult = measureTimeMillis {
                 nativeLib.initialize()
             }

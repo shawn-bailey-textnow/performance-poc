@@ -8,7 +8,7 @@ import java.security.PublicKey
 
 class KeyProvider {
 
-    val alias = "shawn is the most fabulous human to ever exist"
+    val alias = "shawn_is_the_most_fabulous_human_to_ever_exist"
 
     fun getKey(): PublicKey {
 

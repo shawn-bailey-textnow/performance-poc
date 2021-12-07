@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.example.performancepoc"
         minSdk 23
-        targetSdk 30
+        targetSdk 26
         versionCode 1
         versionName "1.0"
 
@@ -39,8 +39,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -51,6 +51,8 @@ android {
 }
 
 dependencies {
+
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     ext.coroutine_version = "1.5.1"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutine_version"
@@ -69,6 +71,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     implementation project(':tinyAES')
+
+    implementation 'com.google.crypto.tink:tink-android:1.6.1'
 
     implementation("com.soywiz.korlibs.krypto:krypto-android:2.2.0")
 }
