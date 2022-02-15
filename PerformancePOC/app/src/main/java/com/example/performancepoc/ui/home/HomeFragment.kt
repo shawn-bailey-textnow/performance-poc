@@ -9,6 +9,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.room.Database
+import androidx.room.Room
 import com.example.performancepoc.databinding.FragmentHomeBinding
 import com.example.tinyaes.NativeLib
 import com.google.crypto.tink.Aead
@@ -20,6 +22,7 @@ import com.google.crypto.tink.config.TinkConfig
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
 import com.soywiz.krypto.AES
 import com.soywiz.krypto.Padding
+import net.sqlcipher.database.SupportFactory
 import java.security.PublicKey
 import kotlin.system.measureTimeMillis
 
@@ -53,6 +56,7 @@ class HomeFragment : Fragment() {
         val tinyaesButton: Button = binding.buttonTinyaes
         val kryptoButton: Button = binding.buttonKrypto
         val tinkButton: Button = binding.buttonTink
+        val sqlCipherButton: Button = binding.buttonSqlcipher
         val deleteButton: Button = binding.buttonDelete
 
         homeViewModel.text.observe(viewLifecycleOwner, {
@@ -132,6 +136,36 @@ class HomeFragment : Fragment() {
             textView.append("\n Krypto Decrypt Time: " + decryptResult + "ms")
             textView.append("\n Krypto Encrypt Result: " + encryptArray.decodeToString())
             textView.append("\n Krypto Decrypt Result: " + decryptArray.decodeToString())
+        }
+
+        sqlCipherButton.setOnClickListener {
+
+            val databaseTest: DatabaseTest
+
+            val databasecreation = measureTimeMillis {
+                val builder = Room.databaseBuilder(
+                    requireContext().applicationContext,
+                    DatabaseTest::class.java, "encrypted.db"
+                )
+                val factory = SupportFactory("PassPhrase".toByteArray())
+                builder.openHelperFactory(factory)
+                builder.allowMainThreadQueries()
+                databaseTest = builder.build()
+            }
+
+            val setTime = measureTimeMillis {
+                databaseTest.vesselDao().setBlocking(VesselEntity("Test", "Test"))
+            }
+
+            val getTime = measureTimeMillis {
+                databaseTest.vesselDao().getBlocking("Test")
+            }
+
+            textView.append("\n Database Create: " + databasecreation + "ms")
+            textView.append("\n Database set: " + setTime + "ms")
+            textView.append("\n Database get: " + getTime + "ms")
+
+
         }
 
         return root
