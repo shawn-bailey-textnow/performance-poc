@@ -1,6 +1,7 @@
 package com.example.performancepoc.ui.home
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,8 +10,11 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.room.Database
 import androidx.room.Room
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.example.performancepoc.databinding.FragmentHomeBinding
 import com.example.tinyaes.NativeLib
 import com.google.crypto.tink.Aead
@@ -22,6 +26,9 @@ import com.google.crypto.tink.config.TinkConfig
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
 import com.soywiz.krypto.AES
 import com.soywiz.krypto.Padding
+import kotlinx.coroutines.launch
+import net.sqlcipher.database.SQLiteDatabase
+import net.sqlcipher.database.SQLiteDatabaseHook
 import net.sqlcipher.database.SupportFactory
 import java.security.PublicKey
 import kotlin.system.measureTimeMillis
@@ -40,6 +47,8 @@ class HomeFragment : Fragment() {
     private val nativeLib = NativeLib()
     private val keyProvider = KeyProvider()
 
+    lateinit var databaseTest: DatabaseTest
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -57,6 +66,7 @@ class HomeFragment : Fragment() {
         val kryptoButton: Button = binding.buttonKrypto
         val tinkButton: Button = binding.buttonTink
         val sqlCipherButton: Button = binding.buttonSqlcipher
+        val preferenceButton: Button = binding.buttonSharedpref
         val deleteButton: Button = binding.buttonDelete
 
         homeViewModel.text.observe(viewLifecycleOwner, {
@@ -113,8 +123,46 @@ class HomeFragment : Fragment() {
             textView.append("\n TinyAES Test Time: " + testResult + "ms")
         }
 
+        preferenceButton.setOnClickListener {
+            val sharedPreferences: SharedPreferences
+
+            val prefinit = measureTimeMillis {
+                //encrypted shared prefs
+                val mainKey = MasterKey.Builder(requireContext())
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build()
+
+                sharedPreferences = EncryptedSharedPreferences.create(
+                    requireContext(),
+                    "Test",
+                    mainKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                )
+            }
+
+            val write = measureTimeMillis {
+                with(sharedPreferences.edit()) {
+                    putString("Test", "Test")
+                    apply()
+                }
+            }
+
+            val read = measureTimeMillis {
+                with(sharedPreferences) {
+                    getString("Test", "Test")
+                }
+            }
+
+            textView.append("\n Pref Create: " + prefinit + "ms")
+            textView.append("\n Pref set: " + write + "ms")
+            textView.append("\n Pref get: " + read + "ms")
+        }
+
         //From comments in AES -> Based on CryptoJS
         kryptoButton.setOnClickListener {
+
+            //krypto test
             val publicKey: PublicKey
 
             val keystoreResult = measureTimeMillis {
@@ -138,31 +186,47 @@ class HomeFragment : Fragment() {
             textView.append("\n Krypto Decrypt Result: " + decryptArray.decodeToString())
         }
 
+
+
         sqlCipherButton.setOnClickListener {
 
-            val databaseTest: DatabaseTest
+            var databasecreation: Long = 0
+            if (!::databaseTest.isInitialized) {
+                databasecreation = measureTimeMillis {
+                    val builder = Room.databaseBuilder(
+                        requireContext().applicationContext,
+                        DatabaseTest::class.java, "encrypted.db"
+                    )
+                    val factory = SupportFactory("PassPhrase".toByteArray(), object :
+                        SQLiteDatabaseHook {
+                        override fun preKey(database: SQLiteDatabase?) = Unit
 
-            val databasecreation = measureTimeMillis {
-                val builder = Room.databaseBuilder(
-                    requireContext().applicationContext,
-                    DatabaseTest::class.java, "encrypted.db"
-                )
-                val factory = SupportFactory("PassPhrase".toByteArray())
-                builder.openHelperFactory(factory)
-                builder.allowMainThreadQueries()
-                databaseTest = builder.build()
+                        override fun postKey(database: SQLiteDatabase?) {
+                            database?.rawExecSQL("PRAGMA cipher_memory_security = OFF")
+                        }
+                    })
+                    builder.openHelperFactory(factory)
+                    builder.allowMainThreadQueries()
+                    databaseTest = builder.build()
+                }
             }
 
             val setTime = measureTimeMillis {
-                databaseTest.vesselDao().setBlocking(VesselEntity("Test", "Test"))
+                repeat(10) {
+                    val indi = measureTimeMillis {
+                        databaseTest.vesselDao().setBlocking(VesselEntity("Test" + it, "Test"))
+                    }
+                    textView.append("\n Database 1 insert: " + indi + "ms")
+                }
             }
+            textView.append("\n Database set: " + setTime + "ms")
+
 
             val getTime = measureTimeMillis {
                 databaseTest.vesselDao().getBlocking("Test")
             }
 
             textView.append("\n Database Create: " + databasecreation + "ms")
-            textView.append("\n Database set: " + setTime + "ms")
             textView.append("\n Database get: " + getTime + "ms")
 
 
